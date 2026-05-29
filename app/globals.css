@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-green: #A6BE47;
+  --brand-green-light: #CBD994;
+  --brand-orange: #FF6900;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+/* Hide scrollbar but keep scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
