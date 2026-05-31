@@ -29,7 +29,9 @@ type StoreCtx = {
 };
 
 const Ctx = createContext<StoreCtx | null>(null);
-const STORAGE_KEY = "modshop_store";
+// Bump the version suffix whenever the seed catalog changes so returning
+// visitors re-seed instead of keeping a stale localStorage snapshot.
+const STORAGE_KEY = "modshop_store_v2";
 
 // Deep clone so edits never mutate the imported seed module.
 const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v));

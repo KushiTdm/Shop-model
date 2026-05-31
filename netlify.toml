@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Plugin officiel Netlify pour Next.js (SSR, App Router, next/image, etc.)
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

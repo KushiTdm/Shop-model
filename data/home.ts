@@ -61,47 +61,128 @@ export type PromoConfig = {
 const img = (id: string, w = 600, h = 870) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&h=${h}&q=80`;
 
-/** Archétype produit (homme) : nom, catégorie, tags de filtrage et photo de mode. */
+/** Archétype produit (homme) : nom, catégorie, tags de filtrage, prix indicatif et photo. */
 type Archetype = {
   name: Localized;
   category: Category;
   tags: string[];
+  price: number;
   photo: string;
 };
 
+/**
+ * Pool d'archétypes hommes — chaque entrée est associée à une photo Unsplash
+ * *vérifiée* (le visuel correspond réellement au type d'article). `makeProducts`
+ * en pioche un sous-ensemble décalé selon la section, de sorte que deux
+ * carrousels n'affichent jamais exactement les mêmes visuels.
+ */
 const ARCHETYPES: Archetype[] = [
-  { name: { fr: "T-shirt imprimé", en: "Printed T-shirt" }, category: "clothing", tags: ["streetwear"], photo: "1521572163474-6864f9cf17ab" },
-  { name: { fr: "Sneakers basses", en: "Low-top sneakers" }, category: "shoes", tags: ["streetwear", "sport"], photo: "1460353581641-37baddab0fa2" },
-  { name: { fr: "Sweatshirt à capuche", en: "Hooded sweatshirt" }, category: "clothing", tags: ["streetwear", "sport"], photo: "1556821840-3a63f95609a7" },
-  { name: { fr: "Chemise oxford", en: "Oxford shirt" }, category: "clothing", tags: ["luxury"], photo: "1596755094514-f87e34085b2c" },
-  { name: { fr: "Pantalon chino", en: "Chino trousers" }, category: "clothing", tags: [], photo: "1473966968600-fa801b869a1a" },
-  { name: { fr: "Veste légère", en: "Lightweight jacket" }, category: "clothing", tags: ["luxury"], photo: "1551028719-00167b16eac5" },
-  { name: { fr: "Montre acier", en: "Steel watch" }, category: "accessories", tags: ["luxury"], photo: "1523275335684-37898b6baf30" },
-  { name: { fr: "Polo coton piqué", en: "Piqué cotton polo" }, category: "clothing", tags: ["sport"], photo: "1586790170083-2f9ceadc732d" },
+  // 0-4 — tee-shirts
+  { name: { fr: "T-shirt col rond", en: "Crew-neck T-shirt" }, category: "clothing", tags: ["streetwear"], price: 24.95, photo: "1521572163474-6864f9cf17ab" },
+  { name: { fr: "T-shirt imprimé", en: "Printed T-shirt" }, category: "clothing", tags: ["streetwear"], price: 29.95, photo: "1576566588028-4147f3842f27" },
+  { name: { fr: "T-shirt premium", en: "Premium T-shirt" }, category: "clothing", tags: [], price: 34.95, photo: "1622519407650-3df9883f76a5" },
+  { name: { fr: "T-shirt logo", en: "Logo T-shirt" }, category: "clothing", tags: ["streetwear"], price: 27.95, photo: "1583743814966-8936f5b7be1a" },
+  { name: { fr: "T-shirt coton bio", en: "Organic cotton T-shirt" }, category: "clothing", tags: [], price: 22.95, photo: "1586790170083-2f9ceadc732d" },
+  // 5-8 — chemises
+  { name: { fr: "Chemise en chambray", en: "Chambray shirt" }, category: "clothing", tags: [], price: 59.0, photo: "1596755094514-f87e34085b2c" },
+  { name: { fr: "Chemise à carreaux", en: "Checked shirt" }, category: "clothing", tags: ["streetwear"], price: 49.95, photo: "1607345366928-199ea26cfe3e" },
+  { name: { fr: "Chemise habillée", en: "Dress shirt" }, category: "clothing", tags: ["luxury"], price: 69.0, photo: "1620012253295-c15cc3e65df4" },
+  { name: { fr: "Chemise business", en: "Business shirt" }, category: "clothing", tags: ["luxury"], price: 79.0, photo: "1483118714900-540cf339fd46" },
+  // 9-11 — maille
+  { name: { fr: "Polo piqué", en: "Piqué polo" }, category: "clothing", tags: ["sport"], price: 45.0, photo: "1602810318383-e386cc2a3ccf" },
+  { name: { fr: "Sweat col rond", en: "Crew sweatshirt" }, category: "clothing", tags: [], price: 55.0, photo: "1620799140408-edc6dcb6d633" },
+  { name: { fr: "Sweat à capuche", en: "Hooded sweatshirt" }, category: "clothing", tags: ["streetwear", "sport"], price: 59.0, photo: "1556821840-3a63f95609a7" },
+  // 12-15 — vestes
+  { name: { fr: "Veste en cuir", en: "Leather jacket" }, category: "clothing", tags: ["luxury"], price: 199.0, photo: "1551028719-00167b16eac5" },
+  { name: { fr: "Veste en jean", en: "Denim jacket" }, category: "clothing", tags: ["streetwear"], price: 89.0, photo: "1611312449408-fcece27cdbb7" },
+  { name: { fr: "Blazer ajusté", en: "Tailored blazer" }, category: "clothing", tags: ["luxury"], price: 159.0, photo: "1594938298603-c8148c4dae35" },
+  { name: { fr: "Costume deux pièces", en: "Two-piece suit" }, category: "clothing", tags: ["luxury"], price: 249.0, photo: "1617137968427-85924c800a22" },
+  // 16-18 — bas
+  { name: { fr: "Pantalon chino", en: "Chino trousers" }, category: "clothing", tags: [], price: 49.95, photo: "1473966968600-fa801b869a1a" },
+  { name: { fr: "Jean slim", en: "Slim jeans" }, category: "clothing", tags: ["streetwear"], price: 69.95, photo: "1542272604-787c3835535d" },
+  { name: { fr: "Jogging molleton", en: "Fleece joggers" }, category: "clothing", tags: ["sport"], price: 44.95, photo: "1594633312681-425c7b97ccd1" },
+  // 19-23 — chaussures
+  { name: { fr: "Sneakers basses", en: "Low-top sneakers" }, category: "shoes", tags: ["streetwear", "sport"], price: 79.99, photo: "1460353581641-37baddab0fa2" },
+  { name: { fr: "Chaussures running", en: "Running shoes" }, category: "shoes", tags: ["sport"], price: 99.99, photo: "1542291026-7eec264c27ff" },
+  { name: { fr: "Sneakers performance", en: "Performance sneakers" }, category: "shoes", tags: ["sport"], price: 119.0, photo: "1606107557195-0e29a4b5b4aa" },
+  { name: { fr: "Sneakers blanches", en: "White sneakers" }, category: "shoes", tags: ["streetwear"], price: 89.99, photo: "1543508282-6319a3e2621f" },
+  { name: { fr: "Bottines en cuir", en: "Leather boots" }, category: "shoes", tags: ["luxury"], price: 149.0, photo: "1542219550-37153d387c27" },
+  // 24-26 — accessoires
+  { name: { fr: "Montre acier", en: "Steel watch" }, category: "accessories", tags: ["luxury"], price: 149.0, photo: "1523275335684-37898b6baf30" },
+  { name: { fr: "Casquette logo", en: "Logo cap" }, category: "accessories", tags: ["streetwear"], price: 24.95, photo: "1556306535-0f09a537f0a3" },
+  { name: { fr: "Cravate en soie", en: "Silk tie" }, category: "accessories", tags: ["luxury"], price: 39.95, photo: "1598033129183-c4f50c736f10" },
 ];
-const BRANDS = ["HUGO", "Pier One", "Hackett", "Calvin Klein", "Nike", "PUMA", "Casio", "M&S"];
-const PRICES = [29.95, 79.99, 59.0, 49.9, 69.5, 119.0, 149.0, 39.95];
-const OLD_PRICES = [49.95, 99.99, 79.0, 69.9, 89.5, 149.0, 199.0, 59.95];
 
-const makeProducts = (prefix: string, count = 8): Product[] =>
-  Array.from({ length: count }).map((_, i) => {
-    const a = ARCHETYPES[i % 8];
-    const discounted = i % 3 === 0;
+/**
+ * Sous-ensembles d'archétypes cohérents avec l'identité de chaque marque
+ * sponsorisée (index dans ARCHETYPES). Les carrousels génériques utilisent
+ * tout le pool via `ALL_IDX`.
+ */
+const BRAND_POOLS: Record<string, number[]> = {
+  HUGO: [1, 2, 5, 7, 12, 14, 16, 17, 24],
+  "Pier One": [0, 4, 6, 9, 10, 16, 17, 19, 25],
+  Hackett: [5, 7, 8, 9, 14, 15, 16, 23, 24, 26],
+  "Calvin Klein": [0, 2, 3, 10, 11, 17, 22, 24],
+  Nike: [3, 11, 18, 19, 20, 21, 22, 25],
+};
+const ALL_IDX = ARCHETYPES.map((_, i) => i);
+
+// Marques crédibles par type d'article, pour les carrousels « mixtes ».
+const SPORT_BRANDS = ["Nike", "PUMA", "Adidas", "New Balance"];
+const CASUAL_BRANDS = ["Vans", "Converse", "Pier One"];
+const LUX_BRANDS = ["HUGO", "Calvin Klein", "Hackett", "BOSS"];
+const STREET_BRANDS = ["Carhartt WIP", "Levi's", "Pier One", "Tommy Hilfiger"];
+const BASIC_BRANDS = ["Pier One", "M&S", "Lacoste", "Tommy Hilfiger"];
+
+const pickBrand = (a: Archetype, n: number): string => {
+  if (a.category === "shoes") {
+    const list = a.tags.includes("sport") ? SPORT_BRANDS : CASUAL_BRANDS;
+    return list[n % list.length];
+  }
+  if (a.tags.includes("luxury")) return LUX_BRANDS[n % LUX_BRANDS.length];
+  if (a.tags.includes("streetwear")) return STREET_BRANDS[n % STREET_BRANDS.length];
+  return BASIC_BRANDS[n % BASIC_BRANDS.length];
+};
+
+// Hash déterministe d'un préfixe → décalage stable dans le pool (variété inter-sections).
+const hashStr = (s: string): number => {
+  let h = 7;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+};
+const round95 = (n: number) => Math.round(n) - 0.05;
+
+type MakeOpts = { brand?: string; pool?: number[] };
+
+/**
+ * Construit `count` produits pour une section. Le `prefix` détermine un décalage
+ * déterministe dans le pool d'archétypes : chaque section affiche donc un jeu de
+ * visuels distinct. `opts.brand` force une marque unique (carrousel sponsorisé),
+ * `opts.pool` restreint les archétypes utilisés.
+ */
+const makeProducts = (prefix: string, count = 8, opts: MakeOpts = {}): Product[] => {
+  const pool = opts.pool ?? ALL_IDX;
+  const seedN = hashStr(prefix);
+  const offset = seedN % pool.length;
+  return Array.from({ length: count }).map((_, i) => {
+    const a = ARCHETYPES[pool[(offset + i) % pool.length]];
+    const discounted = (seedN + i) % 3 === 0;
     return {
       id: `${prefix}-${i}`,
-      brand: BRANDS[i % 8],
+      brand: opts.brand ?? pickBrand(a, seedN + i),
       name: a.name,
-      price: PRICES[i % 8],
-      oldPrice: discounted ? OLD_PRICES[i % 8] : undefined,
+      price: discounted ? round95(a.price * 0.7) : a.price,
+      oldPrice: discounted ? a.price : undefined,
       discount: discounted ? 30 : undefined,
       image: img(a.photo),
       category: a.category,
       gender: "men",
       tags: a.tags,
-      isNew: i % 4 < 2,
-      secondhand: i % 5 === 0,
+      isNew: (seedN + i) % 4 < 2,
+      secondhand: (seedN + i) % 5 === 0,
     };
   });
+};
 
 /**
  * Catalogue femme & enfant — hors carrousels de la home, mais inclus dans
@@ -157,7 +238,7 @@ export const sections: Section[] = [
     type: "carousel",
     title: { fr: "Sélection HUGO", en: "HUGO selection" },
     cta: { fr: "Voir plus", en: "See more" },
-    products: makeProducts("hugo"),
+    products: makeProducts("hugo", 8, { brand: "HUGO", pool: BRAND_POOLS.HUGO }),
   },
   {
     id: "car-stories",
@@ -185,7 +266,7 @@ export const sections: Section[] = [
     type: "carousel",
     title: { fr: "Pier One — les indispensables", en: "Pier One — the essentials" },
     cta: { fr: "Voir plus", en: "See more" },
-    products: makeProducts("pierone"),
+    products: makeProducts("pierone", 8, { brand: "Pier One", pool: BRAND_POOLS["Pier One"] }),
   },
   {
     id: "ed-boards",
@@ -218,7 +299,7 @@ export const sections: Section[] = [
     type: "carousel",
     title: "Hackett London",
     cta: { fr: "Voir plus", en: "See more" },
-    products: makeProducts("hackett"),
+    products: makeProducts("hackett", 8, { brand: "Hackett", pool: BRAND_POOLS.Hackett }),
   },
   {
     id: "hero-ck",
@@ -235,7 +316,7 @@ export const sections: Section[] = [
     type: "carousel",
     title: "Calvin Klein",
     cta: { fr: "Voir plus", en: "See more" },
-    products: makeProducts("ck"),
+    products: makeProducts("ck", 8, { brand: "Calvin Klein", pool: BRAND_POOLS["Calvin Klein"] }),
   },
   {
     id: "hero-nike",
@@ -255,7 +336,7 @@ export const sections: Section[] = [
     type: "carousel",
     title: "Nike Pegasus",
     cta: { fr: "Voir plus", en: "See more" },
-    products: makeProducts("nike"),
+    products: makeProducts("nike", 8, { brand: "Nike", pool: BRAND_POOLS.Nike }),
   },
   {
     id: "hero-puma",
@@ -293,7 +374,7 @@ export const sections: Section[] = [
     type: "carousel",
     title: { fr: "Looks de soirée", en: "Evening looks" },
     cta: { fr: "Voir plus", en: "See more" },
-    products: makeProducts("evening"),
+    products: makeProducts("evening", 8, { pool: [15, 14, 8, 7, 12, 26, 24, 2] }),
   },
   {
     id: "car-trends",
